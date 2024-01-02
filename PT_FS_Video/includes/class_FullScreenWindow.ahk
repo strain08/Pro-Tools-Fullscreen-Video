@@ -1,21 +1,5 @@
 #Requires AutoHotkey v2
-/*
-temphWnd := WinExist("ahk_class Notepad")
-if (temphWnd=0){
-    Run "notepad"
-    temphWnd := WinWait("ahk_class Notepad")
-}
-WinMove(2000,500, 400, 300)
-*/
-/*
-id:=WinExist("ahk_class Notepad")
-fs:=FSWindow(id)
-fs.MakeFullScreenOn(2)
-Sleep(2000)
-fs.MakeFullScreenOn(1)
-Sleep(2000)
-fs.Restore()
-*/
+
 LeftOffset:=0
 TopOffset:=0
 RightOffset:=0

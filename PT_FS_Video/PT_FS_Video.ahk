@@ -1,9 +1,9 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2
 #SingleInstance Force
 
-#Include class_FullScreenWindow.ahk
-#Include class_MonitorInfo.ahk
-#Include class_RegStartup.ahk
+#Include includes\class_FullScreenWindow.ahk
+#Include includes\class_MonitorInfo.ahk
+#Include includes\class_RegStartup.ahk
 ; CONFIG begin
 
 UsePrimaryMonitor:=false 
