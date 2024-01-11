@@ -6,67 +6,90 @@
 ; shortcut
 PrintScreen:: TogglePTFullScreen()
 
-; monitor to make pro tools full screen on
-pt_Monitor:= MonitorGetPrimary()
+; Monitor to make Pro Tools full screen on.
+; Default: MonitorGetPrimary()
+PT_MONITOR:= MonitorGetPrimary()
+
+; Custom window width. 
+; True: Read the window width from INI file.
+; False (default): Use PT_MONITOR width. 
+CUSTOM_WIDTH:= false
 
 ; Configure <<<<<<
 
-pt_IsFullscreen:=false
-pt_main_hWnd:=0
+INI_PATH:=A_ScriptDir "\"
+INI_FILE:=INI_PATH "PT_FullscreenApp.ini"
+INI_SECTION_SIZE:= "WindowSize"
+INI_KEY_WIDTH:= "WindowWidth"
+INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
+if INI_WINDOW_WIDTH == -1{
+	MonitorGetWorkArea(MonitorGetPrimary(), &Left, &Top, &Right, &Bottom)
+	IniWrite(INI_WINDOW_WIDTH:= Right - Left, INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH)
+}else
+	CUSTOM_WIDTH:=true
+	
+PT_IS_FULLSCREEN:=false
+PT_MAIN_HWND:=0
 
 ControlTimer(){
-	if pt_main_hWnd = 0
+	if PT_MAIN_HWND = 0
 		return
-	pt_edit_hWnd:= GetMDIWindow(pt_main_hWnd, "Edit:")
-    pt_mix_hWnd:= GetMDIWindow(pt_main_hWnd, "Mix:")    
+	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
+    pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")    
 	ToggleControl(pt_mix_hWnd)
     ToggleControl(pt_edit_hWnd)
 }
 
 TogglePTFullScreen(){
-    global pt_IsFullscreen
-    global pt_main_hWnd:= WinExist("ahk_class DigiAppWndClass","")
+    global PT_IS_FULLSCREEN
+    global PT_MAIN_HWND:= WinExist("ahk_class DigiAppWndClass","")
     
-	if pt_main_hWnd == 0    
+	if PT_MAIN_HWND == 0    
         return 0   
     
-	ToggleMainWindow(pt_main_hWnd)  
-	if pt_IsFullscreen
+	ToggleMainWindow(PT_MAIN_HWND)  
+	if PT_IS_FULLSCREEN
 		SetTimer ControlTimer, 1000
 	else
 		SetTimer ControlTimer, -1000 ; negative means run once in specified interval
     
 	; Send Ctrl + =  twice, force a redraw
-    WinActivate pt_main_hWnd    
+    WinActivate PT_MAIN_HWND    
     Send "^="    
     Send "^="    
 }
 
 ToggleMainWindow(hWnd){
-	global pt_IsFullscreen	
-	global pt_Monitor
+	global PT_IS_FULLSCREEN	
+	global PT_MONITOR
+	global CUSTOM_WIDTH
+	global INI_WINDOW_WIDTH
+
 	if !WinExist(hWnd)
         return false	
 
     if !IsWindowStyled(hWnd){
         ToggleStyles hWnd        
-		MonitorGetWorkArea(pt_Monitor, &Left, &Top, &Right, &Bottom)
-        WinMove Left, Top, Right - Left, Bottom - Top, hWnd
-		pt_IsFullscreen:=true
+		MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
+        if CUSTOM_WIDTH
+			WinMove Left, Top, INI_WINDOW_WIDTH, Bottom - Top, hWnd
+		else
+			WinMove Left, Top, Right - Left, Bottom - Top, hWnd
+		PT_IS_FULLSCREEN:=true
     }
     else{
         ToggleStyles hWnd
         WinRestore hWnd
-		pt_IsFullscreen:=false
+		PT_IS_FULLSCREEN:=false
     }
 }
 
 ToggleControl(hWnd){
-	global pt_IsFullscreen
+	global PT_IS_FULLSCREEN
     if !WinExist(hWnd)
         return false
 	
-	if pt_IsFullscreen {
+	if PT_IS_FULLSCREEN {
 		if !IsWindowStyled(hWnd) {
 			WinMove 0,0,,,hWnd
 			ToggleStyles hWnd
