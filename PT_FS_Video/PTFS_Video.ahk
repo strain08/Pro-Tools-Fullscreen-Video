@@ -14,7 +14,7 @@ TargetWindow  := "ahk_exe AvidVideoEngine.exe"
 ; CONFIG end
 
 INI_Path:=A_ScriptDir "\"
-INI_File:=INI_Path "PT_FullscreenVideo.ini"
+INI_File:=INI_Path "PTFS_Video.ini"
 
 INI_Section_General:="General"
 INI_Section_Monitor:="Favorite"

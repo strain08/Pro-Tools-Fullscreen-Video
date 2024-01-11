@@ -1,6 +1,9 @@
 #Requires AutoHotkey v2
 #SingleInstance Force
+/*
+PT_FS_App - 
 
+*/
 ; >>>>> Configure
 
 ; shortcut
@@ -18,7 +21,7 @@ CUSTOM_WIDTH:= false
 ; Configure <<<<<<
 
 INI_PATH:=A_ScriptDir "\"
-INI_FILE:=INI_PATH "PT_FullscreenApp.ini"
+INI_FILE:=INI_PATH "PTFS_App.ini"
 INI_SECTION_SIZE:= "WindowSize"
 INI_KEY_WIDTH:= "WindowWidth"
 INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
