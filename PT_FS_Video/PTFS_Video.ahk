@@ -1,5 +1,11 @@
 #Requires AutoHotkey v2
 #SingleInstance Force
+/*
+-------------------------------------
+PT_FS_Video - Make Pro Tools video window borderless
+Version: 1.0.0b
+-------------------------------------
+*/
 
 #Include includes\class_FullScreenWindow.ahk
 #Include includes\class_MonitorInfo.ahk

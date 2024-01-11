@@ -1,9 +1,12 @@
 #Requires AutoHotkey v2
 #SingleInstance Force
 /*
-PT_FS_App - 
-
+-------------------------------------
+PT_FS_App - Make Pro Tools borderless
+Version: 1.0.0b
+-------------------------------------
 */
+
 ; >>>>> Configure
 
 ; shortcut
