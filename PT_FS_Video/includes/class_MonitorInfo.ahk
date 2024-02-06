@@ -7,8 +7,15 @@
 class MonitorInfo {   
     
     MonitorInfos:=Map()
+    ; MonitorInfos[MonitorIndex].DeviceString - monitor name as it appears in Device Manager
+    ; MonitorInfos[MonitorIndex].DeviceID - uniquely identifies monitor
     
-    __New(){
+    __New(INI_File){
+        this.ReadSystemMonitors()
+    }
+    
+    ; reads system mon information to MonitorInfos map
+    ReadSystemMonitors(){
         moninfo:={}
         While this.EnumDisplayDevices(A_Index-1, &DISPLAY_DEVICEA0)    {
             if !DISPLAY_DEVICEA0["StateFlags"]
@@ -44,7 +51,6 @@ class MonitorInfo {
             moninfo:={}
         }
     }
-    
     /*
     EnumDisplayDevicesW function (winuser.h)
         https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumdisplaydevicesw
