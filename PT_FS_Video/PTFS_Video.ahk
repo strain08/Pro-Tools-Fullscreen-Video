@@ -118,7 +118,9 @@ BuildMonitorsMenu(FavMonitor){
     global MonitorMap
     global UsePrimaryMonitor
     global tray
-    mon:=MonitorInfo()
+    global INI_File
+
+    mon:=MonitorInfo(INI_File)
     mi:=mon.MonitorInfos
     primary_mon:=MonitorGetPrimary()
     MonitorMap:=Map()
@@ -128,13 +130,25 @@ BuildMonitorsMenu(FavMonitor){
         MonitorItem:={}
         if A_Index==primary_mon
         {
-            menu_id:="Monitor" A_Index "(P)`t" mi[A_Index].DeviceString
+            if mi[A_Index].FriendlyName == "" {
+                menu_id:="Monitor" A_Index "(P)`t" mi[A_Index].DeviceString
+            }
+            else{
+                menu_id:=A_Index "(P). " mi[A_Index].FriendlyName
+            }
+
             MonitorItem.Primary:=true
             MonitorItem.Checked:=(A_Index==FavMonitor) && UsePrimaryMonitor
         } 
         else
         {
-            menu_id:="Monitor" A_Index "`t" mi[A_Index].DeviceString
+            if mi[A_Index].FriendlyName == "" {
+                menu_id:="Monitor" A_Index "`t" mi[A_Index].DeviceString
+            }
+            else{
+                menu_id:=A_Index ". " mi[A_Index].FriendlyName
+            }
+            
             MonitorItem.Primary:=false
             MonitorItem.Checked:=(A_Index==FavMonitor)
         }

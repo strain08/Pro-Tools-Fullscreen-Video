@@ -12,6 +12,21 @@ class MonitorInfo {
     
     __New(INI_File){
         this.ReadSystemMonitors()
+        for k,v in this.MonitorInfos{
+            monitorExists:=IniRead(INI_File,v.DeviceID,,-1)
+            if monitorExists = -1 {
+                ; initialize monitor section
+                IniWrite(v.DeviceName,INI_File,v.DeviceID,"DeviceName")
+                IniWrite(v.DeviceString,INI_File,v.DeviceID,"DeviceString")
+                IniWrite(v.GPUName,INI_File,v.DeviceID,"GPUName")
+                IniWrite("",INI_File,v.DeviceID,"FriendlyName")
+            }
+            else{
+                ; read FriendlyName from INI
+                friendlyName:=IniRead(INI_File, v.DeviceID, "FriendlyName","")                
+                this.MonitorInfos[k].FriendlyName:=friendlyName                
+            }
+        }
     }
     
     ; reads system mon information to MonitorInfos map
