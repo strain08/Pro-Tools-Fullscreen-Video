@@ -57,32 +57,32 @@ MainLoop(){
     global MonitorClicked
     global fsw
     
-    If NumberOfMonitors != MonitorGetCount() 
-    {
+    ; monitor config has changed
+    If NumberOfMonitors != MonitorGetCount() {
         NumberOfMonitors := MonitorGetCount()
         AutoFullScreen:=false
         fsw.Restore()    
         Menu_Refresh()        
     }
     
-    if hWnd := WinExist(TargetWindow)
-    {   
-        if !fsw.Matches(hWnd)     
-            fsw:=FullScreenWindow(hWnd)    
+    ; video window presence
+    if hWnd := WinExist(TargetWindow) {
+        if !fsw.Matches(hWnd) 
+            fsw:=FullScreenWindow(hWnd)
     }
-    else 
-    {
-        fsw.hWnd := -1
+    else { ; video window not present
+        fsw.hWnd := -1 
         return
     }
-
-    if !AutoFullScreen && MonitorClicked
-    {
+    
+    ; user has clicked on menu monitor
+    if !AutoFullScreen && MonitorClicked {
         fsw.MakeFullScreenOn(FavMonitor)
         MonitorClicked:=false
         return
     }
-
+    
+    ; AutoFullscreen user option
     if AutoFullScreen
         fsw.MakeFullScreenOn(FavMonitor)
 }
@@ -111,7 +111,7 @@ Menu_Refresh(){
     tray.Add()
     tray.Add("Options", optionsMenu)
     tray.Add("Exit", ExitMenu_Click)
-    tray.Default := "Identify monitors"
+    tray.Default:= "Identify monitors"
 }
 
 BuildMonitorsMenu(FavMonitor){
@@ -120,34 +120,28 @@ BuildMonitorsMenu(FavMonitor){
     global tray
     global INI_File
 
-    mon:=MonitorInfo(INI_File)
-    mi:=mon.MonitorInfos
-    primary_mon:=MonitorGetPrimary()
-    MonitorMap:=Map()
+    mon:= MonitorInfo(INI_File)
+    mi:= mon.MonitorInfos
+    primary_mon:= MonitorGetPrimary()
+    MonitorMap:= Map()
 
     loop (MonitorGetCount()){
-        menu_id:=""
-        MonitorItem:={}
-        if A_Index==primary_mon
-        {
-            if mi[A_Index].FriendlyName == "" {
-                menu_id:="Monitor" A_Index "(P)`t" mi[A_Index].DeviceString
-            }
-            else{
-                menu_id:=A_Index "(P). " mi[A_Index].FriendlyName
-            }
+        menu_id:= ""
+        MonitorItem:= {}
+        if A_Index = primary_mon {
+            if mi[A_Index].FriendlyName == "" 
+                menu_id:="Monitor" A_Index "(P)`t" mi[A_Index].DeviceManagerName            
+            else
+                menu_id:="Monitor" A_Index "(P)`t" mi[A_Index].FriendlyName            
 
             MonitorItem.Primary:=true
             MonitorItem.Checked:=(A_Index==FavMonitor) && UsePrimaryMonitor
         } 
-        else
-        {
-            if mi[A_Index].FriendlyName == "" {
-                menu_id:="Monitor" A_Index "`t" mi[A_Index].DeviceString
-            }
-            else{
-                menu_id:=A_Index ". " mi[A_Index].FriendlyName
-            }
+        else {
+            if mi[A_Index].FriendlyName == "" 
+                menu_id:="Monitor" A_Index "`t" mi[A_Index].DeviceManagerName            
+            else
+                menu_id:="Monitor" A_Index "`t" mi[A_Index].FriendlyName            
             
             MonitorItem.Primary:=false
             MonitorItem.Checked:=(A_Index==FavMonitor)
@@ -182,14 +176,15 @@ Restore_Click(*){
     global AutoFullScreen
     
     fsw.Restore()
-    AutoFullScreen:=false
+    AutoFullScreen:= false
     Menu_Refresh()    
 }
 
 RunAtStartup_Click(*){
     global RunAtStartup
-    RunAtStartup:=!RunAtStartup
-    reg:=RegStartup("PTFullScreen", A_ScriptFullPath)
+
+    RunAtStartup:= !RunAtStartup
+    reg:= RegStartup("PTFullScreen", A_ScriptFullPath)
     reg.Set(RunAtStartup)
     IniWrite(RunAtStartup, INI_File, INI_Section_General, INI_Key_AutoStart)
     Menu_Refresh()
@@ -199,8 +194,8 @@ IdentifyMon_Click(*){
     IDwindows:=[]
     loop (NumberOfMonitors){
         MonitorGet(A_Index, &Left, &Top, &Right, &Bottom)        
-        ID := Gui()
-        ID.BackColor:="Blue"
+        ID:= Gui()
+        ID.BackColor:= "Blue"
         ID.Add("Text",, Left " " Top " " Right " " Bottom )        
         ID.SetFont("s100 cWhite w1000")
         ID.Add("Text","x0 y40 w200 Center", MonitorMap[A_Index].Primary?A_Index "P": A_Index )
@@ -210,7 +205,7 @@ IdentifyMon_Click(*){
     }
     Sleep(3000)
     loop(NumberOfMonitors){        
-        win:=IDwindows.Pop()
+        win:= IDwindows.Pop()
         win.Hide()
         win.Destroy()
     }    
@@ -221,7 +216,7 @@ Monitor_Click(ItemName, ItemPos, MenuName) {
     global FavMonitor
     global MonitorClicked
     if (MonitorMap.Has(ItemName)){        
-        FavMonitor:=MonitorMap[ItemName].ID
+        FavMonitor:= MonitorMap[ItemName].ID
         IniWrite(FavMonitor, INI_File, INI_Section_Monitor, INI_Key_FavMonitor)
         MonitorClicked:=true
         Menu_Refresh()        

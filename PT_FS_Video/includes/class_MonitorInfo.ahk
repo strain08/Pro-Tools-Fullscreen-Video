@@ -1,69 +1,76 @@
 #Requires AutoHotkey v2.0
 
-; ****************************
-; credits go to Seven0528 here https://www.autohotkey.com/boards/viewtopic.php?t=116104
-; ****************************
+class MonitorData{
+    DeviceManagerName:=""   ; monitor name as it appears in Device Manager
+    GPUName:=""             ; name of the GPU monitor is connected to
+    DeviceID:=""            ; uniquely identifies monitor
+    MonitorNumber:=""       ; AHK monitor number
+    DeviceName:=""          ; = MonitorGetName(A_Index)
+    FriendlyName:=""        ; can be set by user in INI file
+}
 
 class MonitorInfo {   
     
-    MonitorInfos:=Map()
-    ; MonitorInfos[MonitorIndex].DeviceString - monitor name as it appears in Device Manager
-    ; MonitorInfos[MonitorIndex].DeviceID - uniquely identifies monitor
+    MonitorInfos:=Map() ; MonitorData mapped by MonitorIndex
     
     __New(INI_File){
         this.ReadSystemMonitors()
-        for k,v in this.MonitorInfos{
-            monitorExists:=IniRead(INI_File,v.DeviceID,,-1)
-            if monitorExists = -1 {
-                ; initialize monitor section
-                IniWrite(v.DeviceName,INI_File,v.DeviceID,"DeviceName")
-                IniWrite(v.DeviceString,INI_File,v.DeviceID,"DeviceString")
-                IniWrite(v.GPUName,INI_File,v.DeviceID,"GPUName")
-                IniWrite("",INI_File,v.DeviceID,"FriendlyName")
+        for k,v in this.MonitorInfos{            
+            if IniRead(INI_File,v.DeviceID,,-1) = -1 { ; check if monitor id exists in INI file
+                ; new entry
+                IniWrite(v.DeviceName, INI_File, v.DeviceID, "DeviceName")
+                IniWrite(v.DeviceManagerName, INI_File, v.DeviceID, "DeviceString")
+                IniWrite(v.GPUName, INI_File, v.DeviceID, "GPUName")
+                IniWrite("" ,INI_File, v.DeviceID, "FriendlyName") ; create empty FriendlyName
             }
             else{
-                ; read FriendlyName from INI
-                friendlyName:=IniRead(INI_File, v.DeviceID, "FriendlyName","")                
-                this.MonitorInfos[k].FriendlyName:=friendlyName                
+                ; read FriendlyName from INI, default to empty
+                this.MonitorInfos[k].FriendlyName:= IniRead(INI_File, v.DeviceID, "FriendlyName","")
             }
         }
     }
-    
-    ; reads system mon information to MonitorInfos map
-    ReadSystemMonitors(){
-        moninfo:={}
+
+    ; ****************************
+    ; credits for obtaining monitor data go to Seven0528 here https://www.autohotkey.com/boards/viewtopic.php?t=116104
+    ; ****************************
+    ; reads system monitor information to MonitorInfos map
+    ReadSystemMonitors()
+    {        
+        mondata:=MonitorData()
+
         While this.EnumDisplayDevices(A_Index-1, &DISPLAY_DEVICEA0)    {
             if !DISPLAY_DEVICEA0["StateFlags"]
                 continue
 
             ;1. EnumDisplayDevices
-            For k,v in DISPLAY_DEVICEA0 {
-                  
-                if k="DeviceName"
-                    moninfo.DeviceName:=v
-                if k="DeviceString"
-                    moninfo.GPUName:=v
+            For k,v in DISPLAY_DEVICEA0 {                  
+                switch k {
+                    case "DeviceName":      mondata.DeviceName:= v
+                    case "DeviceString":    mondata.GPUName:= v
+                }
             }
 
             ;2. EnumDisplayDevices with EDD_GET_DEVICE_INTERFACE_NAME
             this.EnumDisplayDevices(A_Index-1, &DISPLAY_DEVICEA1, 1)
 
             For k,v in DISPLAY_DEVICEA1 {       
-                if k="DeviceString" ; monitor name as it appears in Device Manager
-                    moninfo.DeviceString:=v
-                if k="DeviceID" ; uniquely identifies monitor
-                    moninfo.DeviceID:=v
+                switch k {
+                    case "DeviceString":    mondata.DeviceManagerName:= v
+                    case "DeviceID":        mondata.DeviceID:= v
+                }                
             }
 
-            if moninfo.DeviceString != "" {
+            ; match AHK monitor number with device
+            if mondata.DeviceManagerName != "" {
                 loop (MonitorGetCount())
-                    if MonitorGetName(A_Index) = moninfo.DeviceName
-                        moninfo.MonitorNumber:=A_Index
+                    if MonitorGetName(A_Index) = mondata.DeviceName
+                        mondata.MonitorNumber:=A_Index
                 
-                this.MonitorInfos[moninfo.MonitorNumber]:=moninfo
-        
+                this.MonitorInfos[mondata.MonitorNumber]:= mondata        
             }
-            moninfo:={}
+            
+            ; initialize monitor data holder
+            mondata:=MonitorData()
         }
     }
     /*

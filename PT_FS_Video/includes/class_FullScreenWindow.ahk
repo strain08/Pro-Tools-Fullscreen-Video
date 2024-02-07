@@ -27,9 +27,8 @@ class FullScreenWindow {
             return false        
     }
     
-    MakeFullScreenOn(monitor){
-        if !WinExist(this.hWnd) ||            
-            monitor > MonitorGetCount()            
+    MakeFullScreenOn(monitor) {
+        if !WinExist(this.hWnd) || monitor > MonitorGetCount()            
             return false
         if this.IsOnMonitor()=monitor && this.IsFullScreen()
             return true
@@ -116,9 +115,9 @@ class FullScreenWindow {
             return false
         WinSetStyle "^0x040000",this.hWnd ; WS_SIZEBOX
         
-        ; needed on regular window, AvidVideoEngine is already borderless
-        
+        ; needed on regular window, AvidVideoEngine is already borderless        
         ;WinSetStyle "^0x800000",this.hWnd ; WS_BORDER
+        
         WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION    
     }
 }
