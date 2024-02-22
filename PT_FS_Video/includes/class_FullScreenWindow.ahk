@@ -6,13 +6,13 @@ RightOffset:=0
 BottomOffset:=0
 
 
-class FullScreenWindow {    
+class FullScreenWindow {
     OriginDpi:=0
     TargetDpi:=0
     hWnd:=0
     Window:=Map()
     ID:=0
-    
+
     ; CTOR
     __New(ID) {
 		this.hWnd := ID
@@ -24,12 +24,11 @@ class FullScreenWindow {
         if (this.hWnd == ID)
             return true
         else
-            return false        
+            return false
     }
-    
-    MakeFullScreenOn(monitor){
-        if !WinExist(this.hWnd) ||            
-            monitor > MonitorGetCount()            
+
+    MakeFullScreenOn(monitor) {
+        if !WinExist(this.hWnd) || monitor > MonitorGetCount()
             return false
         if this.IsOnMonitor()=monitor && this.IsFullScreen()
             return true
@@ -42,44 +41,47 @@ class FullScreenWindow {
                 MonRight - MonLeft,
                 MonBottom - MonTop,
                 this.hWnd)
-        
+
         this.TargetDpi:=DllCall("User32\GetDpiForWindow", "Ptr", this.hWnd, "int")
         if !this.IsFullScreen()
             {
-            this.ToggleStyles()            
+            this.ToggleStyles()
             }
-        WinMaximize this.hWnd            
+        WinMaximize this.hWnd
+        WinSetAlwaysOnTop(1, this.hwnd)
     }
-    
+
     SavePosition(){
-        this.Window:=Map()        
-        WinGetPos &x, &y, &w, &h, this.hWnd    
+        this.Window:=Map()
+        WinGetPos &x, &y, &w, &h, this.hWnd
         this.Window[this.hWnd] := [x, y, w, h]
         this.OriginDpi:=DllCall("User32\GetDpiForWindow", "Ptr", this.hWnd, "int")
     }
 
     Restore(){
-        if !WinExist(this.hWnd) ||            
+        if !WinExist(this.hWnd) ||
            !this.CanRestore()
             return false
         this.Window[this.hWnd][3]*=this.TargetDpi / this.OriginDpi
         this.Window[this.hWnd][4]*=this.TargetDpi / this.OriginDpi
         WinRestore this.hWnd
-        WinMove(this.Window[this.hWnd]*)
+        WinMove(this.Window[this.hWnd]*)        
 
         if this.IsFullScreen()
-            this.ToggleStyles()        
+            this.ToggleStyles()
+        
+        WinSetAlwaysOnTop(0, this.hwnd)
 
         this.Window.Delete(this.hWnd)
     }
-    
+
     IsFullScreen(){
         if !WinExist(this.hWnd)
             return false
-                    
+
         if WinGetStyle(this.hWnd) & 0x40000
             return false
-        else    
+        else
             return true
     }
 
@@ -93,13 +95,13 @@ class FullScreenWindow {
     }
 
     IsOnMonitor(){
-        if !WinExist(this.hWnd)            
+        if !WinExist(this.hWnd)
             return false
         WinGetPos(&x, &y, &w, &h, this.hWnd)
         mon:=0
         loop (MonitorGetCount()){
             MonitorGet(A_Index, &MonLeft, &MonTop, &MonRight, &MonBottom)
-            if (x >= MonLeft + LeftOffset && 
+            if (x >= MonLeft + LeftOffset &&
                 x < MonRight + RightOffset &&
                 y >= MonTop + TopOffset &&
                 y < MonBottom + BottomOffset)
@@ -115,10 +117,10 @@ class FullScreenWindow {
         if !WinExist(this.hWnd)
             return false
         WinSetStyle "^0x040000",this.hWnd ; WS_SIZEBOX
-        
+
         ; needed on regular window, AvidVideoEngine is already borderless
-        
         ;WinSetStyle "^0x800000",this.hWnd ; WS_BORDER
-        WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION    
+
+        WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION
     }
 }
