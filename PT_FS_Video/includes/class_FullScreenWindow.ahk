@@ -48,6 +48,7 @@ class FullScreenWindow {
             this.ToggleStyles()
             }
         WinMaximize this.hWnd
+        WinSetAlwaysOnTop(1, this.hwnd)
     }
 
     SavePosition(){
@@ -64,10 +65,12 @@ class FullScreenWindow {
         this.Window[this.hWnd][3]*=this.TargetDpi / this.OriginDpi
         this.Window[this.hWnd][4]*=this.TargetDpi / this.OriginDpi
         WinRestore this.hWnd
-        WinMove(this.Window[this.hWnd]*)
+        WinMove(this.Window[this.hWnd]*)        
 
         if this.IsFullScreen()
             this.ToggleStyles()
+        
+        WinSetAlwaysOnTop(0, this.hwnd)
 
         this.Window.Delete(this.hWnd)
     }
