@@ -43,10 +43,11 @@ rs.Set(RunAtStartup)
 
 TraySetIcon(A_Windir "\system32\SHELL32.dll",116)
 tray:=A_TrayMenu
-NumberOfMonitors:=0
+NumberOfMonitors:=MonitorGetCount()
 MonitorClicked:=false
 MonitorMap:=Map()
 fsw:=FullScreenWindow(-1)
+Menu_Refresh()
 ;<<< INIT
 
 SetTimer(MainLoop, 1000)
