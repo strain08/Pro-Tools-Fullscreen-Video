@@ -105,7 +105,7 @@ Menu_Refresh(){
 	optionsMenu.Add("Run at Startup", RunAtStartup_Click)
 	if RunAtStartup
 		optionsMenu.Check("Run at Startup")
-
+	optionsMenu.Add("Edit INI file", EditINI_Click)
 
 	tray.Delete()
 	tray.Add("Identify monitors", IdentifyMon_Click)
@@ -246,6 +246,11 @@ Monitor_Click(ItemName, ItemPos, MenuName) {
 		MonitorClicked:=true
 		Menu_Refresh()
 	}
+}
+
+EditINI_Click(*){
+	RunWait INI_File
+	Menu_Refresh()
 }
 
 ; exit app

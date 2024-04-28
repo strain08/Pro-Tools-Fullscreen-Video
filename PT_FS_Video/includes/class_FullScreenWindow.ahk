@@ -66,7 +66,6 @@ class FullScreenWindow {
         this.Window[this.hWnd][4]*=this.TargetDpi / this.OriginDpi
         WinRestore this.hWnd
         WinMove(this.Window[this.hWnd]*)        
-
         if this.IsFullScreen()
             this.ToggleStyles()
         
