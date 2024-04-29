@@ -43,10 +43,11 @@ rs.Set(RunAtStartup)
 
 TraySetIcon(A_Windir "\system32\SHELL32.dll",116)
 tray:=A_TrayMenu
-NumberOfMonitors:=0
+NumberOfMonitors:=MonitorGetCount()
 MonitorClicked:=false
 MonitorMap:=Map()
 fsw:=FullScreenWindow(-1)
+Menu_Refresh()
 ;<<< INIT
 
 SetTimer(MainLoop, 1000)
@@ -105,7 +106,7 @@ Menu_Refresh(){
 	optionsMenu.Add("Run at Startup", RunAtStartup_Click)
 	if RunAtStartup
 		optionsMenu.Check("Run at Startup")
-
+	optionsMenu.Add("Edit INI file", EditINI_Click)
 
 	tray.Delete()
 	tray.Add("Identify monitors", IdentifyMon_Click)
@@ -246,6 +247,11 @@ Monitor_Click(ItemName, ItemPos, MenuName) {
 		MonitorClicked:=true
 		Menu_Refresh()
 	}
+}
+
+EditINI_Click(*){
+	RunWait INI_File
+	Menu_Refresh()
 }
 
 ; exit app
