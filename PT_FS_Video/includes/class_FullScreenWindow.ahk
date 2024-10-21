@@ -35,6 +35,7 @@ class FullScreenWindow {
         if !this.CanRestore()
             this.SavePosition()
         MonitorGet(monitor, &MonLeft, &MonTop, &MonRight, &MonBottom)
+        try {
         WinRestore this.hwnd ; clears artifacts below window
         WinMove(MonLeft,
                 MonTop,
@@ -49,6 +50,9 @@ class FullScreenWindow {
             }
         WinMaximize this.hWnd
         WinSetAlwaysOnTop(1, this.hwnd)
+        } catch {
+            return false
+        }
     }
 
     SavePosition(){
@@ -64,24 +68,29 @@ class FullScreenWindow {
             return false
         this.Window[this.hWnd][3]*=this.TargetDpi / this.OriginDpi
         this.Window[this.hWnd][4]*=this.TargetDpi / this.OriginDpi
+        try{
         WinRestore this.hWnd
         WinMove(this.Window[this.hWnd]*)        
         if this.IsFullScreen()
             this.ToggleStyles()
         
         WinSetAlwaysOnTop(0, this.hwnd)
-
         this.Window.Delete(this.hWnd)
+        } catch {
+            return false
+        }
     }
 
     IsFullScreen(){
         if !WinExist(this.hWnd)
             return false
-
+        try {
         if WinGetStyle(this.hWnd) & 0x40000
             return false
         else
             return true
+        } catch 
+            return false
     }
 
     CanRestore(){
@@ -96,7 +105,9 @@ class FullScreenWindow {
     IsOnMonitor(){
         if !WinExist(this.hWnd)
             return false
-        WinGetPos(&x, &y, &w, &h, this.hWnd)
+        try WinGetPos(&x, &y, &w, &h, this.hWnd)
+         catch
+            return false
         mon:=0
         loop (MonitorGetCount()){
             MonitorGet(A_Index, &MonLeft, &MonTop, &MonRight, &MonBottom)
@@ -115,11 +126,14 @@ class FullScreenWindow {
     ToggleStyles(){
         if !WinExist(this.hWnd)
             return false
+        try {
         WinSetStyle "^0x040000",this.hWnd ; WS_SIZEBOX
 
         ; needed on regular window, AvidVideoEngine is already borderless
         ;WinSetStyle "^0x800000",this.hWnd ; WS_BORDER
 
         WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION
+        } catch
+            return false
     }
 }
