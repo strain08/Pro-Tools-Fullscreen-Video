@@ -163,9 +163,9 @@ BuildMonitorsMenu(FavMonitor){
 			;tray.Check(v.Name)
 			tray.SetIcon(v.Name, A_Windir "\system32\SHELL32.dll",116)
 		}
-		if v.Primary && !UsePrimaryMonitor {
-			tray.Disable(v.Name)
-		}
+		;if v.Primary && !UsePrimaryMonitor {
+		;	tray.Disable(v.Name)
+		;}
 	}
 }
 
@@ -238,15 +238,27 @@ IdentifyMon_Click(*){
 
 ; activate selected monitor for fullscreen video window
 Monitor_Click(ItemName, ItemPos, MenuName) {
-	global MonitorMap
 	global FavMonitor
 	global MonitorClicked
-	if (MonitorMap.Has(ItemName)){
-		FavMonitor:= MonitorMap[ItemName].ID
-		IniWrite(FavMonitor, INI_File, INI_Section_Monitor, INI_Key_FavMonitor)
-		MonitorClicked:=true
-		Menu_Refresh()
+
+	; if monitor is shift-clicked, ask for Friendly Name for Monitor Number
+	if (GetKeyState("LShift", "P")) {
+		input:=InputBox("Enter friendly name for monitor " MonitorMap[ItemName].ID)
+		if input.Result == "OK"	{
+			IniWrite(input.Value, INI_File, mi[MonitorMap[ItemName].ID].DeviceID, "FriendlyName")
+			Menu_Refresh()
+		}
 	}
+	else {
+		; switch monitor only if it's not primary or if UsePrimaryMonitor is true
+		if MonitorMap.Has(ItemName) && (!MonitorMap[ItemName].Primary || UsePrimaryMonitor)	{
+			FavMonitor:= MonitorMap[ItemName].ID
+			IniWrite(FavMonitor, INI_File, INI_Section_Monitor, INI_Key_FavMonitor)
+			MonitorClicked:=true
+			Menu_Refresh()
+		}
+	}
+
 }
 
 EditINI_Click(*){
