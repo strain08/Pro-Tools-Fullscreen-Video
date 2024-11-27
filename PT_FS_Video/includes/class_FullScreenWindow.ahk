@@ -36,21 +36,21 @@ class FullScreenWindow {
             this.SavePosition()
         MonitorGet(monitor, &MonLeft, &MonTop, &MonRight, &MonBottom)
         try {
-        WinRestore this.hwnd ; clears artifacts below window
-        WinMove(MonLeft,
-                MonTop,
-                MonRight - MonLeft,
-                MonBottom - MonTop,
-                this.hWnd)
+            WinRestore this.hwnd ; clears artifacts below window
+            WinMove(MonLeft,
+                    MonTop,
+                    MonRight - MonLeft,
+                    MonBottom - MonTop,
+                    this.hWnd)
 
-        this.TargetDpi:=DllCall("User32\GetDpiForWindow", "Ptr", this.hWnd, "int")
-        if !this.IsFullScreen()
-            {
-            this.ToggleStyles()
+            this.TargetDpi:=DllCall("User32\GetDpiForWindow", "Ptr", this.hWnd, "int")
+            if !this.IsFullScreen() {
+                this.ToggleStyles()
             }
-        WinMaximize this.hWnd
-        WinSetAlwaysOnTop(1, this.hwnd)
-        } catch {
+            WinMaximize this.hWnd
+            WinSetAlwaysOnTop(1, this.hwnd)
+        }
+        catch {
             return false
         }
     }
@@ -69,14 +69,15 @@ class FullScreenWindow {
         this.Window[this.hWnd][3]*=this.TargetDpi / this.OriginDpi
         this.Window[this.hWnd][4]*=this.TargetDpi / this.OriginDpi
         try{
-        WinRestore this.hWnd
-        WinMove(this.Window[this.hWnd]*)        
-        if this.IsFullScreen()
-            this.ToggleStyles()
-        
-        WinSetAlwaysOnTop(0, this.hwnd)
-        this.Window.Delete(this.hWnd)
-        } catch {
+            WinRestore this.hWnd
+            WinMove(this.Window[this.hWnd]*)
+            if this.IsFullScreen() {
+                this.ToggleStyles()
+            }
+            WinSetAlwaysOnTop(0, this.hwnd)
+            this.Window.Delete(this.hWnd)
+        }
+        catch {
             return false
         }
     }
@@ -85,11 +86,12 @@ class FullScreenWindow {
         if !WinExist(this.hWnd)
             return false
         try {
-        if WinGetStyle(this.hWnd) & 0x40000
-            return false
-        else
-            return true
-        } catch 
+            if WinGetStyle(this.hWnd) & 0x40000
+                return false
+            else
+                return true
+        }
+        catch
             return false
     }
 
@@ -119,7 +121,7 @@ class FullScreenWindow {
                     mon:=A_Index
                     break
                 }
-            }
+        }
         return mon
     }
 
@@ -127,12 +129,12 @@ class FullScreenWindow {
         if !WinExist(this.hWnd)
             return false
         try {
-        WinSetStyle "^0x040000",this.hWnd ; WS_SIZEBOX
+            WinSetStyle "^0x040000",this.hWnd ; WS_SIZEBOX
 
-        ; needed on regular window, AvidVideoEngine is already borderless
-        ;WinSetStyle "^0x800000",this.hWnd ; WS_BORDER
+            ; needed on regular window, AvidVideoEngine is already borderless
+            ;WinSetStyle "^0x800000",this.hWnd ; WS_BORDER
 
-        WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION
+            WinSetStyle "^0xC00000",this.hWnd ; WS_CAPTION
         } catch
             return false
     }
