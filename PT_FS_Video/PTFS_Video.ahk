@@ -26,16 +26,15 @@ INI_Path:=A_ScriptDir "\"
 INI_File:=INI_Path "PTFS_Video.ini"
 
 INI_Section_General:="General"
-INI_Section_Monitor:="Favorite"
 INI_Key_FavMonitor:="FavMon"
 INI_Key_AutoStart:="RunAtStartup"
 INI_Key_AutoFullScreen:="AutoFullScreen"
 
-FavMonitor:=IniRead(INI_File, INI_Section_Monitor, INI_Key_FavMonitor, -1)
+FavMonitor:=IniRead(INI_File, INI_Section_General, INI_Key_FavMonitor, -1)
 if FavMonitor=-1
-	IniWrite(FavMonitor := MonitorGetCount(), INI_File, INI_Section_Monitor, INI_Key_FavMonitor)
+	IniWrite(FavMonitor := MonitorGetCount(), INI_File, INI_Section_General, INI_Key_FavMonitor)
 
-AutoFullScreen:=IniRead(INI_File, INI_Section_Monitor, INI_Key_AutoFullScreen, 0)
+AutoFullScreen:=IniRead(INI_File, INI_Section_General, INI_Key_AutoFullScreen, 0)
 
 RunAtStartup:=IniRead(INI_File, INI_Section_General, INI_Key_AutoStart, 0)
 rs:=RegStartup("PTFullScreen", A_ScriptFullPath)
@@ -43,14 +42,20 @@ rs.Set(RunAtStartup)
 
 TraySetIcon(A_Windir "\system32\SHELL32.dll",116)
 tray:=A_TrayMenu
+
 NumberOfMonitors:=MonitorGetCount()
 MonitorClicked:=false
 MonitorMap:=Map()
 fsw:=FullScreenWindow(-1)
 Menu_Refresh()
-;<<< INIT
 
+OnExit(OnAppExit,1)
+OnAppExit(*){
+	mon.StoreSystemMonitors()
+}
 SetTimer(MainLoop, 1000)
+
+;<<< INIT
 
 MainLoop(){
 	global NumberOfMonitors
@@ -124,6 +129,7 @@ BuildMonitorsMenu(FavMonitor){
 	global tray
 	global INI_File
 	global mi
+	global mon
 
 	mon:= MonitorInfo(INI_File)
 	mi:= mon.MonitorInfos
@@ -175,7 +181,7 @@ Auto_Click(*){
 
 	AutoFullScreen:=!AutoFullScreen
 	Menu_Refresh()
-	IniWrite(AutoFullScreen, INI_File, INI_Section_Monitor, INI_Key_AutoFullScreen)
+	IniWrite(AutoFullScreen, INI_File, INI_Section_General, INI_Key_AutoFullScreen)
 }
 
 ; restore window size and properties
@@ -253,7 +259,7 @@ Monitor_Click(ItemName, ItemPos, MenuName) {
 		; switch monitor only if it's not primary or if UsePrimaryMonitor is true
 		if MonitorMap.Has(ItemName) && (!MonitorMap[ItemName].Primary || UsePrimaryMonitor)	{
 			FavMonitor:= MonitorMap[ItemName].ID
-			IniWrite(FavMonitor, INI_File, INI_Section_Monitor, INI_Key_FavMonitor)
+			IniWrite(FavMonitor, INI_File, INI_Section_General, INI_Key_FavMonitor)
 			MonitorClicked:=true
 			Menu_Refresh()
 		}
