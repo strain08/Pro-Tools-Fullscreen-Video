@@ -12,24 +12,39 @@ class MonitorData{
 class MonitorInfo {
 
 	MonitorInfos:=Map() ; MonitorData mapped by MonitorIndex
+	INI_FILE:=""
 
 	__New(INI_File){
+		this.INI_FILE:=INI_File
 		this.ReadSystemMonitors()
+		this.ReadFriendlyNames()
+	}
+
+	; reads FriendlyName from INI file
+	ReadFriendlyNames(){
 		for k,v in this.MonitorInfos{
-			if IniRead(INI_File,v.DeviceID,,-1) = -1 { ; check if monitor id exists in INI file
-				; new entry
-				IniWrite(v.DeviceName, INI_File, v.DeviceID, "DeviceName")
-				IniWrite(v.DeviceManagerName, INI_File, v.DeviceID, "DeviceString")
-				IniWrite(v.GPUName, INI_File, v.DeviceID, "GPUName")
-				IniWrite("" ,INI_File, v.DeviceID, "FriendlyName") ; create empty FriendlyName
-			}
-			else{
-				; read FriendlyName from INI, default to empty
-				this.MonitorInfos[k].FriendlyName:= IniRead(INI_File, v.DeviceID, "FriendlyName","")
+			if IniRead(this.INI_FILE,v.DeviceID,,-1) != -1 { ; check if monitor id exists in INI file
+				this.MonitorInfos[k].FriendlyName:= IniRead(this.INI_FILE, v.DeviceID, "FriendlyName","")
 			}
 		}
 	}
 
+	ClearStoredMonitors(){
+		sections:=StrSplit(IniRead(this.INI_FILE),'`n')
+		loop sections.Length
+			if sections[A_Index] != INI_Section_General
+				IniDelete(this.INI_FILE, sections[A_Index])
+	}
+
+	StoreSystemMonitors(){
+		for k,v in this.MonitorInfos{
+				; new entry
+				IniWrite(v.DeviceName, this.INI_FILE, v.DeviceID, "DeviceName")
+				IniWrite(v.DeviceManagerName, this.INI_FILE, v.DeviceID, "DeviceString")
+				IniWrite(v.GPUName, this.INI_FILE, v.DeviceID, "GPUName")
+				IniWrite(v.FriendlyName ,this.INI_FILE, v.DeviceID, "FriendlyName")
+		}
+	}
 	; ****************************
 	; credits for obtaining monitor data go to Seven0528 here https://www.autohotkey.com/boards/viewtopic.php?t=116104
 	; ****************************
